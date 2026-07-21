@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 type Tab = 'api' | 'workspace';
@@ -20,9 +21,19 @@ function EyeIcon({ open }: { open: boolean }) {
 }
 
 function ApiTab() {
+  const { apiKey, login } = useAuth();
   const [showCurrentKey, setShowCurrentKey] = useState(false);
   const [showNewKey, setShowNewKey] = useState(false);
   const [newKey, setNewKey] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    if (!newKey.trim()) return;
+    await login(newKey.trim());
+    setNewKey('');
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -54,7 +65,7 @@ function ApiTab() {
           <input
             type={showCurrentKey ? 'text' : 'password'}
             readOnly
-            value="sk-ant-...sk-ant-dad"
+            value={apiKey ?? ''}
             className="neu-input w-full rounded-xl bg-base px-4 py-3 pr-12 font-mono text-sm text-ink-dim"
           />
           <button
@@ -87,10 +98,12 @@ function ApiTab() {
             </button>
           </div>
           <button
-            className="neu-btn-accent shrink-0 rounded-xl px-5 py-3 text-sm font-semibold text-white"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}
+            onClick={handleSave}
+            disabled={!newKey.trim()}
+            className="neu-btn-accent shrink-0 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: saved ? 'linear-gradient(135deg, #16a34a, #15803d)' : 'linear-gradient(135deg, #7c3aed, #6d28d9)' }}
           >
-            저장
+            {saved ? '저장됨 ✓' : '저장'}
           </button>
         </div>
       </section>

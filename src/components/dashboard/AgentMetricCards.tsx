@@ -1,39 +1,39 @@
 import {
-  IconResearch,
   IconAnalyze,
   IconGenerate,
   IconReport,
-} from "@/components/ui/Icons";
-import { MetricCard } from "@/types";
+  IconResearch,
+} from '@/components/ui/Icons';
+import { MetricCard } from '@/types';
 
 const cards: MetricCard[] = [
   {
-    id: "research",
-    label: "RESEARCH",
-    sublabel: "Ada · Aria",
-    assignee: "david",
-    icon: "research",
+    id: 'research',
+    label: 'RESEARCH',
+    sublabel: '·',
+    assignee: 'david',
+    icon: 'research',
   },
   {
-    id: "analyze",
-    label: "ANALYZE",
-    sublabel: "Ada · Flux",
-    assignee: "flux",
-    icon: "analyze",
+    id: 'planner',
+    label: 'PLANNER',
+    sublabel: '·',
+    assignee: 'flux',
+    icon: 'analyze',
   },
   {
-    id: "generate",
-    label: "GENERATE",
-    sublabel: "Ada · Scout",
-    assignee: "scout",
-    icon: "generate",
+    id: 'reviewer',
+    label: 'REVIEWER',
+    sublabel: '·',
+    assignee: 'forge',
+    icon: 'report',
   },
   {
-    id: "report",
-    label: "REPORT",
-    sublabel: "Ada · Forge",
-    assignee: "forge",
-    icon: "report",
+    id: 'generate',
+    label: 'GENERATE',
+    sublabel: '·',
+    assignee: 'scout',
+    icon: 'generate',
   },
 ];
 
@@ -45,33 +45,33 @@ const iconMap = {
 };
 
 const iconColorMap = {
-  research: "text-violet-soft bg-violet/15",
-  analyze: "text-teal bg-teal/10",
-  generate: "text-amber bg-amber/10",
-  report: "text-sky bg-sky/10",
+  research: 'text-violet-soft bg-violet/15',
+  analyze: 'text-teal bg-teal/10',
+  generate: 'text-amber bg-amber/10',
+  report: 'text-sky bg-sky/10',
 };
 
 export function AgentMetricCards() {
   return (
-    <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {cards.map((card) => {
+    <div className='mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4'>
+      {cards.map(card => {
         const Icon = iconMap[card.icon];
         const colorClass = iconColorMap[card.icon];
         return (
           <div
             key={card.id}
-            className="group flex flex-col gap-3 rounded-2xl bg-base neu-raised p-4 transition-transform duration-200 "
+            className='group bg-base neu-raised flex flex-col gap-3 rounded-2xl p-4 transition-transform duration-200'
           >
             <div
-              className={`flex h-9 w-9 items-center justify-center rounded-xl neu-raised-xs ${colorClass}`}
+              className={`neu-raised-xs flex h-9 w-9 items-center justify-center rounded-xl ${colorClass}`}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className='h-5 w-5' />
             </div>
             <div>
-              <p className="text-[10px] font-semibold tracking-widest text-ink-dim">
+              <p className='text-ink-dim text-[10px] font-semibold tracking-widest'>
                 {card.label}
               </p>
-              <p className="mt-0.5 text-xs text-ink-faint">{card.sublabel}</p>
+              <p className='text-ink-faint mt-0.5 text-xs'>{card.sublabel}</p>
             </div>
           </div>
         );

@@ -24,7 +24,9 @@ export function Sidebar() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 화면 크기 변화에 따라 자동 동기화
   useEffect(() => {
@@ -40,8 +42,12 @@ export function Sidebar() {
     <>
       {/* 사이드바 */}
       <aside
-        className={`bg-base neu-raised relative flex shrink-0 flex-col items-center overflow-hidden rounded-2xl py-5 transition-all duration-300 ease-in-out ${
-          mounted && collapsed ? 'pointer-events-none m-0 w-0 opacity-0' : 'm-4 w-14'
+        className={`bg-base neu-raised relative flex shrink-0 flex-col items-center rounded-2xl py-5 transition-all duration-300 ease-in-out ${
+          !menuOpen ? 'overflow-hidden' : ''
+        } ${
+          mounted && collapsed
+            ? 'pointer-events-none m-0 w-0 opacity-0'
+            : 'm-4 w-14'
         }`}
       >
         {/* New Task */}
@@ -85,7 +91,7 @@ export function Sidebar() {
         {/* User avatar + popup */}
         <div className='relative'>
           {menuOpen && (
-            <div className='bg-base neu-raised absolute bottom-0 left-full ml-3 w-24 overflow-hidden rounded-2xl py-2'>
+            <div className='bg-base neu-raised absolute bottom-0 left-full z-50 ml-3 w-24 overflow-hidden rounded-2xl py-2'>
               <button
                 title={setting?.label}
                 onClick={() => {
@@ -114,7 +120,9 @@ export function Sidebar() {
       <button
         onClick={() => setCollapsed(v => !v)}
         className='bg-base neu-raised-xs text-ink-faint hover:text-ink-dim fixed top-1/2 z-50 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full transition-[left] duration-300 ease-in-out'
-        style={{ left: mounted && collapsed ? TOGGLE_LEFT_CLOSED : TOGGLE_LEFT_OPEN }}
+        style={{
+          left: mounted && collapsed ? TOGGLE_LEFT_CLOSED : TOGGLE_LEFT_OPEN,
+        }}
       >
         {collapsed ? <ChevronRight size={11} /> : <ChevronLeft size={11} />}
       </button>
