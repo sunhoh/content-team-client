@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import { Geist } from 'next/font/google';
+import { Toaster } from 'sonner';
 
+import GlobalLayout from '@/components/layouts/GlobalLayout';
 import { cn } from '@/lib/utils';
 
 import { Providers } from './providers';
@@ -26,12 +28,17 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn('font-sans', geist.variable)}
     >
-      <Providers>
-        <head>
-          {/* <link rel='stylesheet' href='https://use.typekit.net/mds2ata.css' /> */}
-        </head>
-        <body>{children}</body>
-      </Providers>
+      <head>
+        {/* <link rel='stylesheet' href='https://use.typekit.net/mds2ata.css' /> */}
+      </head>
+      <body>
+        <Providers>
+          <GlobalLayout>
+            {children}
+            <Toaster position='top-center' richColors />
+          </GlobalLayout>
+        </Providers>
+      </body>
     </html>
   );
 }

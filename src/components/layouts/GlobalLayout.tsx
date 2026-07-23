@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { Path } from '@/constants/path.constants';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function RootLayout({
+export default function GlobalLayout({
   children,
 }: {
   children: React.ReactNode;

@@ -1,43 +1,46 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 interface TenantData {
   tenantId: string;
-  tenantName: string;
+  companyName: string;
 }
 
 interface TenantContextValue extends TenantData {
-  updateTenant: (patch: Partial<Pick<TenantData, 'tenantName'>>) => void;
+  updateTenant: (patch: Partial<TenantData>) => void;
 }
 
 const DEFAULT_TENANT: TenantData = {
-  tenantId: 'healingbreeze',
-  tenantName: 'Healing Breeze',
+  tenantId: '',
+  companyName: 'healingbreeze',
 };
 
 const TenantContext = createContext<TenantContextValue | null>(null);
 
 export function TenantProvider({ children }: { children: ReactNode }) {
-  const [tenant, setTenant] = useState<TenantData>(() => {
-    if (typeof window === 'undefined') return DEFAULT_TENANT;
-    const stored = localStorage.getItem('tenant');
-    return stored ? { ...DEFAULT_TENANT, tenantName: stored } : DEFAULT_TENANT;
-  });
+  const [tenant, setTenant] = useState<TenantData>(DEFAULT_TENANT);
 
-  const updateTenant = (patch: Partial<Pick<TenantData, 'tenantName'>>) => {
+  useEffect(() => {
+    const stored = localStorage.getItem('tenantId');
+    if (stored) setTenant(prev => ({ ...prev, tenantId: stored }));
+  }, []);
+
+  const updateTenant = (patch: Partial<TenantData>) => {
     setTenant(prev => {
       const next = { ...prev, ...patch };
-      localStorage.setItem('tenant', next.tenantName);
+      localStorage.setItem('tenantId', next.tenantId);
       return next;
     });
   };
 
   return (
-    <TenantContext.Provider value={{
-      ...tenant,
-      updateTenant,
-    }}>
+    <TenantContext.Provider
+      value={{
+        ...tenant,
+        updateTenant,
+      }}
+    >
       {children}
     </TenantContext.Provider>
   );

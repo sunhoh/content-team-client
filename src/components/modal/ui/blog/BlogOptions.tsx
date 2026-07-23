@@ -6,7 +6,12 @@ import {
   SelectItem,
   SelectTrigger,
 } from '@/components/ui/select';
-import { PERSONA_OPTIONS, PLATFORM_OPTIONS, Persona, Platform } from '@/constants/agents/blog.constants';
+import {
+  Persona,
+  PERSONA_OPTIONS,
+  Platform,
+  PLATFORM_OPTIONS,
+} from '@/constants/agents/blog.constants';
 
 interface BlogOptionsProps {
   persona: Persona;
@@ -15,51 +20,60 @@ interface BlogOptionsProps {
   onPlatformChange: (value: Platform) => void;
 }
 
-export function BlogOptions({ persona, platform, onPersonaChange, onPlatformChange }: BlogOptionsProps) {
+export function BlogOptions({
+  persona,
+  platform,
+  onPersonaChange,
+  onPlatformChange,
+}: BlogOptionsProps) {
   return (
-    <>
-      {/* 페르소나 선택 */}
+    <div className='space-y-5'>
       <div>
-        <p className="mb-3 font-mono text-[10.5px] font-semibold tracking-widest text-ink-faint uppercase">
+        <p className='text-ink-faint mb-3 font-mono text-[10.5px] font-semibold tracking-widest uppercase'>
           페르소나 선택
         </p>
-        <Select value={persona} onValueChange={(v) => v && onPersonaChange(v as Persona)}>
+        <Select
+          value={persona}
+          onValueChange={v => v && onPersonaChange(v as Persona)}
+        >
           <SelectTrigger>
-            <span className="text-sm text-ink">
-              {PERSONA_OPTIONS[persona]}
-            </span>
+            <span className='text-ink text-sm'>{PERSONA_OPTIONS[persona]}</span>
           </SelectTrigger>
           <SelectContent>
-            {(Object.entries(PERSONA_OPTIONS) as [Persona, string][]).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
+            {(Object.entries(PERSONA_OPTIONS) as [Persona, string][]).map(
+              ([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ),
+            )}
           </SelectContent>
         </Select>
       </div>
 
       {/* 플랫폼 선택 */}
       <div>
-        <p className="mb-3 font-mono text-[10.5px] font-semibold tracking-widest text-ink-faint uppercase">
+        <p className='text-ink-faint my-3 font-mono text-[10.5px] font-semibold tracking-widest uppercase'>
           플랫폼 선택
         </p>
-        <div className="flex gap-2">
-          {(Object.entries(PLATFORM_OPTIONS) as [Platform, string][]).map(([value, label]) => (
-            <button
-              key={value}
-              onClick={() => onPlatformChange(value)}
-              className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all ${
-                platform === value
-                  ? 'neu-inset text-aria'
-                  : 'neu-raised-sm text-ink-dim hover:text-ink'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className='flex gap-2'>
+          {(Object.entries(PLATFORM_OPTIONS) as [Platform, string][]).map(
+            ([value, label]) => (
+              <button
+                key={value}
+                onClick={() => onPlatformChange(value)}
+                className={`flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all ${
+                  platform === value
+                    ? 'neu-inset text-aria'
+                    : 'neu-raised-sm text-ink-dim hover:text-ink'
+                }`}
+              >
+                {label}
+              </button>
+            ),
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }

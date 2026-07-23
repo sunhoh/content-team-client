@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { isAxiosError } from 'axios';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 import { api } from '@/api/apiClient';
 
@@ -25,9 +32,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (key: string) => {
-    // await api.verify({ apiKey: key });
-    localStorage.setItem('claude_api_key', key);
-    setApiKey(key);
+    try {
+      await api.verify({ apiKey: key });
+      localStorage.setItem('claude_api_key', key);
+      setApiKey(key);
+    } catch (err) {
+      const userMessage = isAxiosError(err)
+        ? (err.response?.data?.userMessage ?? 'API 키 인증에 실패했습니다.')
+        : 'API 키 인증에 실패했습니다.';
+      throw new Error(userMessage);
+    }
   };
 
   const logout = () => {
@@ -36,7 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ apiKey, isAuthenticated: !!apiKey, isAuthLoading, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        apiKey,
+        isAuthenticated: !!apiKey,
+        isAuthLoading,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

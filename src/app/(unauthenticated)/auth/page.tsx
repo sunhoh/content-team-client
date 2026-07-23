@@ -3,6 +3,7 @@
 import { ExternalLink, Eye, EyeOff, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Path } from '@/constants/path.constants';
 import { N } from '@/constants/theme.constants';
@@ -20,7 +21,6 @@ export default function AuthPage() {
   const [btnDown, setBtnDown] = useState(false);
   const [eyeDown, setEyeDown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { login } = useAuth();
@@ -28,17 +28,17 @@ export default function AuthPage() {
   const handleSubmit = async () => {
     if (!apiKey.trim()) return;
     setIsLoading(true);
-    setError(null);
     try {
       await login(apiKey);
-      router.push(Path.DASHBOARD);
-    } catch {
-      setError('API 키가 유효하지 않습니다.');
+      router.push(`${Path.SETTING}?tab=workspace`);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'API 키가 유효하지 않습니다.',
+      );
     } finally {
       setIsLoading(false);
     }
   };
-
 
   return (
     <>
@@ -169,23 +169,9 @@ export default function AuthPage() {
             </div>
           </div>
 
-          {/* Error */}
-          {error && (
-            <p
-              style={{
-                fontSize: '12px',
-                color: '#ef4444',
-                textAlign: 'center',
-                marginBottom: '12px',
-              }}
-            >
-              {error}
-            </p>
-          )}
-
           {/* Submit */}
           <button
-            disabled={isLoading}
+            disabled={isLoading || !apiKey.trim()}
             onMouseDown={() => setBtnDown(true)}
             onMouseUp={() => setBtnDown(false)}
             onMouseLeave={() => setBtnDown(false)}
@@ -200,8 +186,8 @@ export default function AuthPage() {
               fontSize: '14px',
               fontWeight: '600',
               fontFamily: 'inherit',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.7 : 1,
+              cursor: isLoading || !apiKey.trim() ? 'not-allowed' : 'pointer',
+              opacity: isLoading || !apiKey.trim() ? 0.4 : 1,
               letterSpacing: '.02em',
               marginBottom: '28px',
               boxShadow: btnDown
@@ -211,7 +197,7 @@ export default function AuthPage() {
               transition: 'box-shadow .15s ease, transform .1s ease',
             }}
           >
-            {isLoading ? '인증 중...' : '인증하고 시작하기 →'}
+            {isLoading ? '인증 중...' : '인증하기'}
           </button>
 
           {/* Divider */}

@@ -7,8 +7,8 @@ export const PERSONA_OPTIONS = {
 } as const;
 
 export const PLATFORM_OPTIONS = {
-  naver: '네이버',
-  google: '구글',
+  naver: 'Naver',
+  google: 'Google',
 } as const;
 
 export type Persona = keyof typeof PERSONA_OPTIONS;
@@ -16,5 +16,3 @@ export type Platform = keyof typeof PLATFORM_OPTIONS;
 
 export const DEFAULT_PERSONA: Persona = 'educational';
 export const DEFAULT_PLATFORM: Platform = 'naver';
-
-

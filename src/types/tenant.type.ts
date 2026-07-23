@@ -1,12 +1,12 @@
 import { MENU_KEY } from '@/types/menu.type';
 
 export enum TenantId {
-  Local = 'local',
   GuClinic = 'gu-clinic',
+  Luho = 'luho',
 }
 
 export interface Tenant {
-  id: TenantId;  
+  id: TenantId;
   allowedMenus?: MENU_KEY[];
   assetsPathname: string;
 }

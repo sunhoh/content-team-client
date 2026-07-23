@@ -1,6 +1,15 @@
-import { OnlineBadge } from '@/components/ui/Badge';
+'use client';
+
+import { useTask } from '@/contexts/TaskContext';
 
 export function WelcomeHero() {
+  const { tasks } = useTask();
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const completedToday = tasks.filter(
+    t => t.status === 'completed' && new Date(t.createdAt) >= todayStart,
+  ).length;
+
   return (
     <div className='bg-base neu-raised relative mb-5 overflow-hidden rounded-2xl px-5 py-5 sm:px-8 sm:py-7'>
       {/* Purple glow */}
@@ -28,8 +37,10 @@ export function WelcomeHero() {
         </h1>
         <p className='text-ink-dim mt-1.5 text-sm'>
           오늘 에이전트들이
-          <span className='text-violet-soft font-semibold'>127개</span> 작업을
-          완료했습니다
+          <span className='text-violet-soft font-semibold'>
+            {completedToday}개
+          </span>
+          작업을 완료했습니다
         </p>
       </div>
     </div>
