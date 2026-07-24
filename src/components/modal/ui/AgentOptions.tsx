@@ -1,5 +1,8 @@
 import { BlogOptions } from '@/components/modal/ui/blog/BlogOptions';
-import { PosterOptions } from '@/components/modal/ui/poster/PosterOptions';
+import {
+  LandingSectionInput,
+  PosterOptions,
+} from '@/components/modal/ui/poster/PosterOptions';
 import { Persona, Platform } from '@/constants/agents/blog.constants';
 import {
   ContentType,
@@ -19,8 +22,10 @@ interface AgentOptionsProps {
   onContentTypeChange: (v: ContentType) => void;
   posterSize: PosterSizeType;
   onPosterSizeChange: (v: PosterSizeType) => void;
-  imageFile: File | null;
-  onImageChange: (v: File | null) => void;
+  imageFiles: File[];
+  onImagesChange: (v: File[]) => void;
+  landingSections: LandingSectionInput[];
+  onLandingSectionsChange: (sections: LandingSectionInput[]) => void;
 }
 
 export function AgentOptions({
@@ -35,8 +40,10 @@ export function AgentOptions({
   onContentTypeChange,
   posterSize,
   onPosterSizeChange,
-  imageFile,
-  onImageChange,
+  imageFiles,
+  onImagesChange,
+  landingSections,
+  onLandingSectionsChange,
 }: AgentOptionsProps) {
   const isBlog = selectedId === 'david';
   const isVisible = isBlog || selectedId === 'nova';
@@ -51,8 +58,10 @@ export function AgentOptions({
           onContentTypeChange={onContentTypeChange}
           posterSize={posterSize}
           onPosterSizeChange={onPosterSizeChange}
-          imageFile={imageFile}
-          onImageChange={onImageChange}
+          imageFiles={imageFiles}
+          onImagesChange={onImagesChange}
+          landingSections={landingSections}
+          onLandingSectionsChange={onLandingSectionsChange}
         />
       ) : (
         <BlogOptions

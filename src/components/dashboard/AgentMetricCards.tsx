@@ -4,7 +4,8 @@ import {
   IconReport,
   IconResearch,
 } from '@/components/ui/Icons';
-import { MetricCard } from '@/types';
+import { agentConfigs } from '@/configs/agent.config';
+import { AgentId, MetricCard } from '@/types';
 
 const cards: MetricCard[] = [
   {
@@ -31,7 +32,7 @@ const cards: MetricCard[] = [
   {
     id: 'generate',
     label: 'GENERATE',
-    sublabel: '·',
+    sublabel: `${AgentId.David} · ${AgentId.Nova}`,
     assignee: 'scout',
     icon: 'generate',
   },

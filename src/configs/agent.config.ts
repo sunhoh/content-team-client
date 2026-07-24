@@ -38,7 +38,7 @@ export const agentConfigs: Record<AgentId.David | AgentId.Nova, AgentConfig> = {
   [AgentId.Nova]: {
     id: AgentId.Nova,
     name: 'Nova',
-    role: 'Poster Designer Agent',
+    role: 'Designer Agent',
     status: 'active',
     description:
       '이벤트·프로모션·시술 안내·SNS 피드 등 포스터를 Figma 편집 가능한 레이어 구조로 제작합니다',

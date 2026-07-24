@@ -6,6 +6,9 @@ export type {
   BlogResult,
   PosterResult,
   PosterSpec,
+  LandingSection,
+  LandingResult,
+  PlannerResult,
   ContentTaskStatus,
   ContentTask,
 } from './agent.type';

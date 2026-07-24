@@ -3,6 +3,7 @@
 import {
   BookOpen,
   Check,
+  ClipboardList,
   Copy,
   Download,
   ExternalLink,
@@ -19,7 +20,14 @@ import { useFigmaMutation } from '@/api/mutation/useFigmaMutation';
 import { usePosterMutation } from '@/api/mutation/usePosterMutation';
 import { useTask } from '@/contexts/TaskContext';
 import { useTenant } from '@/contexts/TenantContext';
-import { AgentId, BlogResult, ContentTask, PosterResult } from '@/types';
+import {
+  AgentId,
+  BlogResult,
+  ContentTask,
+  LandingResult,
+  PlannerResult,
+  PosterResult,
+} from '@/types';
 
 interface ResultModalProps {
   task: ContentTask | null;
@@ -28,8 +36,18 @@ interface ResultModalProps {
 
 type Tab = 'content' | 'images';
 
-function isBlogResult(result: BlogResult | PosterResult): result is BlogResult {
+type AnyResult = BlogResult | PosterResult | LandingResult | PlannerResult;
+
+function isBlogResult(result: AnyResult): result is BlogResult {
   return 'content' in result;
+}
+
+function isPosterResult(result: AnyResult): result is PosterResult {
+  return 'spec' in result;
+}
+
+function isPlannerResult(result: AnyResult): result is PlannerResult {
+  return 'mainTopic' in result;
 }
 
 function MarkdownContent({ text }: { text: string }) {
@@ -59,7 +77,7 @@ function MarkdownContent({ text }: { text: string }) {
             .replace('<!-- TAGS:', '')
             .replace('-->', '')
             .trim()
-            .split(',');
+            .split(/[,\s]+/);
           return (
             <div key={i} className='flex flex-wrap gap-1.5 pt-3'>
               {tags.map((tag, j) => (
@@ -177,7 +195,6 @@ function ImagePromptsContent({ text }: { text: string }) {
       topic: prompt,
       tenant: tenantId,
       imageType: 'poster',
-      posterSize: 'vertical',
     });
 
     if (result.data) {
@@ -207,7 +224,13 @@ function ImagePromptsContent({ text }: { text: string }) {
   );
 }
 
-function PosterResultView({ result, task }: { result: PosterResult; task: ContentTask }) {
+function PosterResultView({
+  result,
+  task,
+}: {
+  result: PosterResult;
+  task: ContentTask;
+}) {
   const { updateTask } = useTask();
   const { tenantId } = useTenant();
   const [figmaUrl, setFigmaUrl] = useState(result.figmaUrl ?? null);
@@ -216,13 +239,16 @@ function PosterResultView({ result, task }: { result: PosterResult; task: Conten
   const { mutate: exportFigma, isPending: isExporting } = useFigmaMutation();
 
   const handleRegenerate = () => {
-    const newTaskId = crypto.randomUUID();
-    updateTask(task.id, { status: 'processing', stage: '재생성 중...', progress: 0, result: undefined });
+    updateTask(task.id, {
+      status: 'processing',
+      stage: '재생성 중...',
+      progress: 0,
+      result: undefined,
+    });
     regenerate({
       taskId: task.id,
       topic: task.topic,
       tenant: tenantId,
-      imageType: task.imageType,
       language: 'ko',
     });
   };
@@ -230,7 +256,7 @@ function PosterResultView({ result, task }: { result: PosterResult; task: Conten
   const handleFigmaExport = () => {
     exportFigma(
       {
-        imageType: task.imageType ?? 'poster',
+        imageType: (task.imageType ?? 'poster') as 'poster' | 'thumbnail',
         topic: task.topic,
         tenant: tenantId,
         spec: result.spec as unknown as Record<string, unknown>,
@@ -238,10 +264,12 @@ function PosterResultView({ result, task }: { result: PosterResult; task: Conten
         imageUrl: result.imageUrl,
       },
       {
-        onSuccess: (res) => {
+        onSuccess: res => {
           if (res.data?.figmaUrl) {
             setFigmaUrl(res.data.figmaUrl);
-            updateTask(task.id, { result: { ...result, figmaUrl: res.data.figmaUrl } });
+            updateTask(task.id, {
+              result: { ...result, figmaUrl: res.data.figmaUrl },
+            });
           }
         },
       },
@@ -315,6 +343,105 @@ function PosterResultView({ result, task }: { result: PosterResult; task: Conten
   );
 }
 
+function PlannerResultView({ result }: { result: PlannerResult }) {
+  const [copied, setCopied] = useState(false);
+
+  const text = [
+    `# ${result.title}`,
+    result.specialist ? `전문가: ${result.specialist}` : '',
+    '',
+    `## 핵심 주제\n${result.mainTopic}`,
+    '',
+    `## 타겟 독자\n${result.targetAudience}`,
+    '',
+    `## 핵심 포인트\n${result.keyPoints.map(p => `- ${p}`).join('\n')}`,
+    result.researchInsights
+      ? `\n## 리서치 인사이트\n${result.researchInsights}`
+      : '',
+    '',
+    `## 요약\n${result.summary}`,
+  ]
+    .filter(l => l !== undefined)
+    .join('\n');
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  return (
+    <div className='space-y-4'>
+      <div className='flex justify-end'>
+        <button
+          onClick={handleCopy}
+          className='text-ink-faint neu-raised-xs hover:text-ink-dim flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-semibold transition-colors'
+        >
+          {copied ? (
+            <Check size={12} className='text-online' />
+          ) : (
+            <Copy size={12} />
+          )}
+          {copied ? '복사됨' : '전체 복사'}
+        </button>
+      </div>
+
+      <div className='bg-base neu-raised-sm space-y-1.5 rounded-2xl p-4'>
+        <p className='text-flux text-[10px] font-bold tracking-widest uppercase'>
+          핵심 주제
+        </p>
+        <p className='text-ink-dim text-sm leading-relaxed'>
+          {result.mainTopic}
+        </p>
+      </div>
+
+      <div className='bg-base neu-raised-sm space-y-1.5 rounded-2xl p-4'>
+        <p className='text-flux text-[10px] font-bold tracking-widest uppercase'>
+          타겟 독자
+        </p>
+        <p className='text-ink-dim text-sm leading-relaxed'>
+          {result.targetAudience}
+        </p>
+      </div>
+
+      <div className='bg-base neu-raised-sm space-y-2 rounded-2xl p-4'>
+        <p className='text-flux text-[10px] font-bold tracking-widest uppercase'>
+          핵심 포인트
+        </p>
+        <ul className='space-y-1.5'>
+          {result.keyPoints.map((point, i) => (
+            <li
+              key={i}
+              className='text-ink-dim flex items-start gap-2 text-sm leading-relaxed'
+            >
+              <span className='text-flux mt-0.5 shrink-0'>·</span>
+              {point}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {result.researchInsights && (
+        <div className='bg-base neu-raised-sm space-y-1.5 rounded-2xl p-4'>
+          <p className='text-flux text-[10px] font-bold tracking-widest uppercase'>
+            리서치 인사이트
+          </p>
+          <p className='text-ink-dim text-sm leading-relaxed'>
+            {result.researchInsights}
+          </p>
+        </div>
+      )}
+
+      <div className='bg-base neu-raised-sm space-y-1.5 rounded-2xl p-4'>
+        <p className='text-flux text-[10px] font-bold tracking-widest uppercase'>
+          요약
+        </p>
+        <p className='text-ink-dim text-sm leading-relaxed'>{result.summary}</p>
+      </div>
+    </div>
+  );
+}
+
 export function ResultModal({ task, onClose }: ResultModalProps) {
   const [tab, setTab] = useState<Tab>('content');
 
@@ -342,7 +469,8 @@ export function ResultModal({ task, onClose }: ResultModalProps) {
   if (!task || !task.result) return null;
 
   const result = task.result;
-  const isPoster = !isBlogResult(result);
+  const isPoster = isPosterResult(result);
+  const isPlanner = isPlannerResult(result);
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center'>
@@ -357,15 +485,25 @@ export function ResultModal({ task, onClose }: ResultModalProps) {
         {/* Header */}
         <div className='flex shrink-0 items-start gap-3 px-6 pt-6 pb-4'>
           <div className='bg-base neu-raised-sm text-violet mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl'>
-            {isPoster ? <Image size={14} /> : <BookOpen size={14} />}
+            {isPoster ? (
+              <Image size={14} />
+            ) : isPlanner ? (
+              <ClipboardList size={14} />
+            ) : (
+              <BookOpen size={14} />
+            )}
           </div>
           <div className='min-w-0 flex-1'>
             <h2 className='text-ink truncate text-base font-semibold'>
-              {task.topic}
+              {isPlanner && isPlannerResult(result) ? result.title : task.topic}
             </h2>
             <p className='text-ink-faint mt-0.5 text-[11px]'>
-              {isPoster ? 'Nova · 포스터' : '블로그 · Aria'} ·{' '}
-              {new Date(task.createdAt).toLocaleDateString('ko-KR')}
+              {isPoster
+                ? 'Nova · 포스터'
+                : isPlanner
+                  ? 'Flux · 플래너'
+                  : '블로그 · Aria'}{' '}
+              · {new Date(task.createdAt).toLocaleDateString('ko-KR')}
             </p>
           </div>
           <button
@@ -377,7 +515,7 @@ export function ResultModal({ task, onClose }: ResultModalProps) {
         </div>
 
         {/* Blog tabs */}
-        {!isPoster && (
+        {!isPoster && !isPlanner && (
           <div className='border-line-dim flex shrink-0 items-center gap-1 border-b px-6 pb-3'>
             <button
               onClick={() => setTab('content')}
@@ -407,12 +545,16 @@ export function ResultModal({ task, onClose }: ResultModalProps) {
         {/* Body */}
         <div className='flex-1 scrollbar-thin overflow-y-auto px-6 py-5'>
           {isPoster ? (
-            <PosterResultView result={result as PosterResult} task={task} />
-          ) : tab === 'content' ? (
-            <MarkdownContent text={(result as BlogResult).content} />
-          ) : (
-            <ImagePromptsContent text={(result as BlogResult).imagePrompts} />
-          )}
+            <PosterResultView result={result} task={task} />
+          ) : isPlanner && isPlannerResult(result) ? (
+            <PlannerResultView result={result} />
+          ) : isBlogResult(result) ? (
+            tab === 'content' ? (
+              <MarkdownContent text={result.content} />
+            ) : (
+              <ImagePromptsContent text={result.imagePrompts} />
+            )
+          ) : null}
         </div>
       </div>
     </div>

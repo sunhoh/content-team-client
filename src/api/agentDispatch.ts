@@ -3,9 +3,8 @@ import { Persona, Platform } from '@/constants/agents/blog.constants';
 import {
   ContentType,
   ImageType,
-  PosterSizeType,
 } from '@/constants/agents/poster.constants';
-import { BlogResult, PosterResult } from '@/types';
+import { BlogResult, PosterResult, LandingResult, PlannerResult } from '@/types';
 import { AgentId } from '@/types/agent.type';
 
 export interface AgentDispatchParams {
@@ -16,12 +15,11 @@ export interface AgentDispatchParams {
   platform?: Platform;
   imageType?: ImageType;
   contentType?: ContentType;
-  posterSize?: PosterSizeType;
-  image?: File;
+  images?: File[];
 }
 
 export type AgentDispatchResult = Promise<{
-  data?: BlogResult | PosterResult;
+  data?: BlogResult | PosterResult | LandingResult | PlannerResult;
 }>;
 
 export function dispatchAgent(
@@ -40,14 +38,34 @@ export function dispatchAgent(
       });
 
     case AgentId.Nova:
+      if (params.imageType === 'thumbnail') {
+        return api.generateThumbnail({
+          topic,
+          tenant,
+          contentType: params.contentType ?? 'meta',
+          language: 'ko',
+          image: params.images?.[0],
+        });
+      }
+      if (params.imageType === 'landing') {
+        return api.generateLanding({
+          tenant,
+          language: 'ko',
+          sections: [{ topic }],
+        });
+      }
       return api.generatePoster({
         topic,
         tenant,
-        imageType: params.imageType,
-        contentType: params.imageType === 'thumbnail' ? params.contentType : undefined,
-        posterSize: params.imageType === 'poster' ? params.posterSize : undefined,
         language: 'ko',
-        image: params.image,
+        image: params.images?.[0],
+      });
+
+    case AgentId.Flux:
+      return api.generatePlanner({
+        topic,
+        tenant,
+        language: 'ko',
       });
 
     default:

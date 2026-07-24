@@ -21,6 +21,7 @@ export const DEFAULT_POSTER_SIZE: PosterSizeType = 'vertical';
 export const IMAGE_TYPE_OPTIONS = {
   thumbnail: '썸네일',
   poster: '포스터',
+  landing: '랜딩',
 } as const;
 
 export type ImageType = keyof typeof IMAGE_TYPE_OPTIONS;

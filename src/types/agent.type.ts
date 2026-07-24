@@ -44,6 +44,26 @@ export interface PosterResult {
   figmaUrl?: string;
 }
 
+export interface LandingSection {
+  id: string;
+  type: 'image' | 'layout-only' | 'asset-required';
+  imageUrl?: string;
+}
+
+export interface LandingResult {
+  sections: LandingSection[];
+}
+
+export interface PlannerResult {
+  title: string;
+  specialist?: string;
+  mainTopic: string;
+  keyPoints: string[];
+  targetAudience: string;
+  researchInsights?: string;
+  summary: string;
+}
+
 export type ContentTaskStatus = 'processing' | 'completed' | 'failed';
 
 export interface ContentTask {
@@ -55,5 +75,5 @@ export interface ContentTask {
   progress: number;
   createdAt: string;
   imageType?: string;
-  result?: BlogResult | PosterResult;
+  result?: BlogResult | PosterResult | LandingResult | PlannerResult;
 }
